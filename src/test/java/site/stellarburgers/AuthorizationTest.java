@@ -1,50 +1,47 @@
 package site.stellarburgers;
 
 import io.qameta.allure.junit4.DisplayName;
-import junitparams.JUnitParamsRunner;
+import io.qameta.allure.Description;
 import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import site.stellarburgers.api.UserClient;
+import site.stellarburgers.generator.UserGenerator;
 import site.stellarburgers.model.LoginPage;
 import site.stellarburgers.model.MainPage;
 import site.stellarburgers.model.PasswordRecoveryPage;
 import site.stellarburgers.model.PersonalAccountPage;
 import site.stellarburgers.model.RegistrationPage;
+import site.stellarburgers.model.User;
 
-import static com.codeborne.selenide.Selenide.clearBrowserLocalStorage;
 import static com.codeborne.selenide.Selenide.open;
 import static com.codeborne.selenide.Selenide.page;
-import static site.stellarburgers.Browser.browserChoice;
-import static site.stellarburgers.Browser.closeNotChromeBrowser;
-import static site.stellarburgers.generator.UserGenerator.DEFAULT_PASSWORD;
-import static site.stellarburgers.generator.UserGenerator.WORKING_EMAIL;
+import static com.codeborne.selenide.Selenide.closeWebDriver;
+import static org.junit.Assert.assertTrue;
 
-@RunWith(JUnitParamsRunner.class)
 @DisplayName("Авторизация")
 public class AuthorizationTest {
 
-    MainPage mainPage;
-    LoginPage loginPage;
-    RegistrationPage registrationPage;
-    PasswordRecoveryPage passwordRecoveryPage;
-    PersonalAccountPage personalAccountPage;
-
-    @BeforeClass
-    public static void beforeAll() {
-        browserChoice();
-    }
-
-    @AfterClass
-    public static void afterAll() {
-        closeNotChromeBrowser();
-    }
+    private MainPage mainPage;
+    private LoginPage loginPage;
+    private RegistrationPage registrationPage;
+    private PasswordRecoveryPage passwordRecoveryPage;
+    private PersonalAccountPage personalAccountPage;
+    private UserClient userClient;
+    private User user;
+    private String accessToken;
 
     @Before
     public void setUp() {
+        userClient = new UserClient();
+        user = UserGenerator.generateRandomUser();
+        userClient.create(user);
+
+        accessToken = userClient.login(user)
+                .then()
+                .extract()
+                .path("accessToken");
+
         mainPage = open(MainPage.MAIN_PAGE_URL, MainPage.class);
         loginPage = page(LoginPage.class);
         registrationPage = page(RegistrationPage.class);
@@ -54,53 +51,61 @@ public class AuthorizationTest {
 
     @After
     public void tearDown() {
-        clearBrowserLocalStorage();
+        if (accessToken != null) {
+            userClient.delete(accessToken);
+        }
+        closeWebDriver();
     }
 
     @Test
     @DisplayName("Вход по кнопке «Войти в аккаунт» на главной")
+    @Description("Проверка входа в систему через кнопку 'Войти в аккаунт' на главной странице")
     public void signInBySignInButtonOnMainPage() {
         mainPage.clickSignInButton();
-        loginPage.login(WORKING_EMAIL, DEFAULT_PASSWORD);
-        Assert.assertTrue(mainPage.checkIsCheckOutButtonEnabled());
+        loginPage.login(user.getEmail(), user.getPassword());
+        assertTrue(mainPage.checkIsCheckOutButtonEnabled());
     }
 
     @Test
     @DisplayName("Вход через кнопку «Личный кабинет»")
+    @Description("Проверка входа в систему через кнопку 'Личный кабинет' в хедере")
     public void signInByPersonalAccountLink() {
         mainPage.clickPersonalAccountLink();
-        loginPage.login(WORKING_EMAIL, DEFAULT_PASSWORD);
-        Assert.assertTrue(mainPage.checkIsCheckOutButtonEnabled());
+        loginPage.login(user.getEmail(), user.getPassword());
+        assertTrue(mainPage.checkIsCheckOutButtonEnabled());
     }
 
     @Test
     @DisplayName("Вход через кнопку в форме регистрации")
+    @Description("Проверка входа в систему через кнопку в форме регистрации")
     public void signInBySignInButtonOnRegistrationPage() {
         mainPage.clickSignInButton();
         loginPage.clickRegisterLink();
         registrationPage.clickSignInLink();
-        loginPage.login(WORKING_EMAIL, DEFAULT_PASSWORD);
-        Assert.assertTrue(mainPage.checkIsCheckOutButtonEnabled());
+        loginPage.login(user.getEmail(), user.getPassword());
+        assertTrue(mainPage.checkIsCheckOutButtonEnabled());
     }
 
     @Test
     @DisplayName("Вход через кнопку в форме восстановления пароля")
+    @Description("Проверка входа в систему через кнопку в форме восстановления пароля")
     public void signInBySignInButtonOnPasswordRecoveryPage() {
         mainPage.clickSignInButton();
         loginPage.clickPasswordRecoveryLink();
         passwordRecoveryPage.clickSignInLink();
-        loginPage.login(WORKING_EMAIL, DEFAULT_PASSWORD);
-        Assert.assertTrue(mainPage.checkIsCheckOutButtonEnabled());
+        loginPage.login(user.getEmail(), user.getPassword());
+        assertTrue(mainPage.checkIsCheckOutButtonEnabled());
     }
 
     @Test
     @DisplayName("Выход из аккаунта")
+    @Description("Проверка выхода из системы через личный кабинет")
     public void signOut() {
         mainPage.clickSignInButton();
-        loginPage.login(WORKING_EMAIL, DEFAULT_PASSWORD);
+        loginPage.login(user.getEmail(), user.getPassword());
         mainPage.clickPersonalAccountLink();
         personalAccountPage.clickSignOutButton();
         loginPage.clickLogoLink();
-        Assert.assertTrue(mainPage.checkIsSignInButtonEnabled());
+        assertTrue(mainPage.checkIsSignInButtonEnabled());
     }
 }

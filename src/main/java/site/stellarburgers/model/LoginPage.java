@@ -27,34 +27,37 @@ public class LoginPage extends Header {
     @FindBy(how = How.XPATH, using = "//a[text()='Восстановить пароль']")
     private SelenideElement PASSWORD_RECOVERY_LINK;
 
+    @Step("Кликнуть на ссылку 'Зарегистрироваться'")
     public void clickRegisterLink() {
         REGISTER_LINK.click();
     }
 
+    @Step("Ввести email: {email}")
     public void setEmail(String email) {
         while (!Objects.equals(EMAIL_INPUT_FIELD.getValue(), email)) {
             EMAIL_INPUT_FIELD.shouldBe(Condition.editable).setValue(email);
         }
     }
 
+    @Step("Ввести пароль")
     public void setPassword(String password) {
         PASSWORD_INPUT_FIELD.setValue(password);
     }
 
+    @Step("Кликнуть кнопку 'Войти'")
     public void clickSignInButton() {
         SIGN_IN_BUTTON.click();
     }
 
-    @Step("Логин пользователя")
+    @Step("Логин пользователя с email: {email}")
     public void login(String email, String password) {
         setEmail(email);
         setPassword(password);
         clickSignInButton();
     }
 
-    @Step("Восстановление пароля")
+    @Step("Кликнуть на ссылку 'Восстановить пароль'")
     public void clickPasswordRecoveryLink() {
         PASSWORD_RECOVERY_LINK.click();
     }
-
 }

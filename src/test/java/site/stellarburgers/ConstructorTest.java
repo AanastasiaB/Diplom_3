@@ -2,6 +2,7 @@ package site.stellarburgers;
 
 import com.codeborne.selenide.WebDriverRunner;
 import io.qameta.allure.junit4.DisplayName;
+import io.qameta.allure.Description;
 import junitparams.JUnitParamsRunner;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -49,6 +50,7 @@ public class ConstructorTest {
 
     @Test
     @DisplayName("Переход в личный кабинет")
+    @Description("Проверка перехода на страницу личного кабинета")
     public void goToPersonalAccount() {
         mainPage.clickPersonalAccountLink();
         Assert.assertEquals(WebDriverRunner.url(), LoginPage.LOGIN_PAGE_URL);
@@ -56,6 +58,7 @@ public class ConstructorTest {
 
     @Test
     @DisplayName("Переход из личного кабинета в конструктор по клику на «Конструктор»")
+    @Description("Проверка возврата в конструктор через ссылку 'Конструктор' из личного кабинета")
     public void goToConstructorFromPersonalAccount() {
         mainPage.clickPersonalAccountLink();
         loginPage.clickConstructorLink();
@@ -64,6 +67,7 @@ public class ConstructorTest {
 
     @Test
     @DisplayName("Переход из личного кабинета в конструктор по клику на логотип Stellar Burgers")
+    @Description("Проверка возврата в конструктор через логотип из личного кабинета")
     public void goToConstructorFromPersonalAccountByLogo() {
         mainPage.clickPersonalAccountLink();
         loginPage.clickLogoLink();

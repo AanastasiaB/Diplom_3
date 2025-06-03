@@ -1,6 +1,7 @@
 package site.stellarburgers;
 
 import io.qameta.allure.junit4.DisplayName;
+import io.qameta.allure.Description;
 import junitparams.JUnitParamsRunner;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -47,17 +48,20 @@ public class TransitionsToSectionsTest {
     }
 
     @Test
+    @Description("Проверка выбора вкладки 'Булки' по умолчанию")
     public void checkBunTabSelection() {
         Assert.assertTrue(constructorPage.checkIsBunTabSelected());
     }
 
     @Test
+    @Description("Проверка переключения на вкладку 'Соусы'")
     public void sauceTabValidWorking() {
         constructorPage.clickSauceTab();
         Assert.assertTrue(constructorPage.checkIsSauceTabSelected());
     }
 
     @Test
+    @Description("Проверка переключения на вкладку 'Начинки'")
     public void fillingTabValidWorking() {
         constructorPage.clickFillingTab();
         Assert.assertTrue(constructorPage.checkIsFillingTabSelected());
